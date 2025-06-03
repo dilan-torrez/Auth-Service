@@ -72,21 +72,21 @@ export class UserService {
     }
 
     try {
-      const module = await this.nats.fetchAndClean(
-        moduleId,
-        'modules.findOne',
-        ['createdAt', 'updatedAt', 'deletedAt', 'name', 'shortened', 'status'],
+      const module = await this.nats.firstValueExclude(
+        { id: moduleId }, // 'params'
+        'modules.findOne', // 'service'
+        ['createdAt', 'updatedAt', 'deletedAt', 'name', 'shortened', 'status'], // 'keysToOmit'
       );
 
       if (!module) {
-        console.log(`Module with ID ${moduleId} not found`);
+        console.log(`Module with ID ${moduleId} not found via NATS`);
         return null;
       }
 
       return module;
     } catch (error) {
       console.log(
-        `Error fetching module with ID ${moduleId}: ${error.message}`,
+        `Error fetching module with ID ${moduleId} via NATS: ${error.message}`,
         error.stack,
       );
       return null;
